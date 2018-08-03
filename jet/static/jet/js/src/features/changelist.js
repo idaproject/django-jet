@@ -6,8 +6,8 @@ var ChangeList = function($changelist) {
 
 ChangeList.prototype = {
     updateFixedHeaderVisibility: function($fixedTable, $originalHeader) {
-        var show = $(window).scrollTop() > $originalHeader.offset().top;
-        $fixedTable.closest('table').toggle(show);
+        var show = $(window).scrollTop() > $originalHeader.offset().top - 5;
+        $fixedTable.closest('.helper').toggle(show);
     },
     updateFixedHeaderWidth: function($fixedHeader, $originalHeader) {
         var $originalColumns = $originalHeader.find('th');
@@ -19,18 +19,27 @@ ChangeList.prototype = {
     },
     initFixedHeader: function($changelist) {
         var $originalHeader = $changelist.find('#result_list thead');
+        var $originalToolbar = $changelist.find('#toolbar');
+        var $originalObjectTools = $('.object-tools');
 
-        if ($originalHeader.length == 0) {
+        if ($originalHeader.length === 0) {
             return;
         }
 
         var $fixedHeader = $originalHeader.clone();
-        var $fixedTable = $('<table>').addClass('helper').append($fixedHeader);
+        var $fixedToolbar = $originalToolbar.clone(true);
+        var $fixedObjectTools = $originalObjectTools.clone(true);
+        var $fixedTable = $('<div>')
+            .addClass('helper')
+            .append($fixedObjectTools)
+            .append($fixedToolbar)
+            .append('<div class="clear">')
+            .append($('<table>').append($fixedHeader));
 
         $fixedTable.find('.action-checkbox-column').empty();
         $fixedTable.appendTo(document.body);
 
-        $(window).on('scroll', $.proxy(this.updateFixedHeaderVisibility, this, $fixedTable, $originalHeader));
+        $(window).on('scroll', $.proxy(this.updateFixedHeaderVisibility, this, $fixedTable, $originalToolbar));
         $(window).on('resize', $.proxy(this.updateFixedHeaderWidth, this, $fixedHeader, $originalHeader));
 
         this.updateFixedHeaderWidth($fixedHeader, $originalHeader);

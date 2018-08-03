@@ -1,6 +1,5 @@
 @import "globals";
 
-
 /* TABLES */
 
 table {
@@ -10,36 +9,6 @@ table {
   overflow-x: auto;
   box-shadow: 0 2px 0 0 $content-border2-color;
   margin-bottom: 2px;
-
-  &.helper {
-    display: none;
-    position: fixed;
-    z-index: 2;
-    top: 0;
-    right: 20px;
-    left: 20px;
-    width: auto;
-    border-radius: 0;
-    box-shadow: none;
-
-    body.menu-pinned & {
-      left: $sidebar-width + 20px;
-    }
-
-    body.menu-pinned.popup & {
-      left: 20px;
-    }
-
-    @include for-mobile {
-      display: none !important;
-    }
-
-    thead {
-      th {
-        border-radius: 0 !important;
-      }
-    }
-  }
 
   thead th {
     background: $content-contrast2-background-color;
@@ -96,7 +65,7 @@ tfoot td {
 }
 
 //tr.alt {
-  //background: #f6f6f6;
+//background: #f6f6f6;
 //}
 
 tbody tr {
@@ -189,9 +158,41 @@ table {
 /* OBJECT HISTORY */
 
 table#change-history {
-    width: 100%;
+  width: 100%;
 }
 
 table#change-history tbody th {
-    width: 16em;
+  width: 16em;
+}
+
+.helper {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 20px;
+  left: 20px;
+  width: auto;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 0 0 0;
+  background-color: $background-color;
+
+  body.menu-pinned & {
+    left: $sidebar-width + 20px;
+  }
+
+  body.menu-pinned.popup & {
+    left: 20px;
+  }
+
+  @include for-mobile {
+    display: none !important;
+  }
+
+  thead {
+    th {
+      border-radius: 0 !important;
+    }
+  }
 }
