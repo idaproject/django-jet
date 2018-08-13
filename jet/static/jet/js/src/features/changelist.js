@@ -154,6 +154,8 @@ ChangeList.prototype = {
                 $container.append($checkbox);
             });
             var dialog = $container.dialog({
+                modal: true,
+                resizable: false,
                 close: function( event, ui ) {
                     $container.dialog( "destroy" );
                 }
