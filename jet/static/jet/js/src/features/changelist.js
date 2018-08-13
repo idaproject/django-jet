@@ -143,7 +143,6 @@ ChangeList.prototype = {
     initColumnSelect: function ($changelist) {
         var self = this;
         var $button = $('<li><a class="button icon-settings" href="#"></a></li>');
-        var $objectTools = $('.object-tools').append($button);
         $button.click(function () {
             var $container = $('<div title="Управление столбцами"></div>');
             $changelist.find('#result_list thead th:not(.action-checkbox-column)').each(function () {
@@ -170,6 +169,7 @@ ChangeList.prototype = {
                 }
             });
         });
+        $('.object-tools').append($button);
     },
     run: function () {
         var $changelist = this.$changelist;
