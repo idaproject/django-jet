@@ -1,23 +1,23 @@
 var $ = require('jquery');
 
-var ChangeList = function($changelist) {
+var ChangeList = function ($changelist) {
     this.$changelist = $changelist;
 };
 
 ChangeList.prototype = {
-    updateFixedHeaderVisibility: function($fixedTable, $originalHeader) {
+    updateFixedHeaderVisibility: function ($fixedTable, $originalHeader) {
         var show = $(window).scrollTop() > $originalHeader.offset().top;
         $fixedTable.closest('table').toggle(show);
     },
-    updateFixedHeaderWidth: function($fixedHeader, $originalHeader) {
+    updateFixedHeaderWidth: function ($fixedHeader, $originalHeader) {
         var $originalColumns = $originalHeader.find('th');
         var $columns = $fixedHeader.find('th');
 
-        $originalColumns.each(function(i) {
+        $originalColumns.each(function (i) {
             $columns.eq(i).css('width', $(this).width());
         });
     },
-    initFixedHeader: function($changelist) {
+    initFixedHeader: function ($changelist) {
         var $originalHeader = $changelist.find('#result_list thead');
 
         if ($originalHeader.length == 0) {
@@ -35,7 +35,7 @@ ChangeList.prototype = {
 
         this.updateFixedHeaderWidth($fixedHeader, $originalHeader);
     },
-    updateFixedFooter: function($results, $footer) {
+    updateFixedFooter: function ($results, $footer) {
         if ($(window).scrollTop() + $(window).height() < $results.offset().top + $results.outerHeight(false) + $footer.innerHeight()) {
             if (!$footer.hasClass('fixed')) {
                 var previousScrollTop = $(window).scrollTop();
@@ -52,7 +52,7 @@ ChangeList.prototype = {
             }
         }
     },
-    initFixedFooter: function($changelist) {
+    initFixedFooter: function ($changelist) {
         var $footer = $changelist.find('.changelist-footer');
         var $results = $footer.siblings('.results');
 
@@ -65,8 +65,8 @@ ChangeList.prototype = {
 
         this.updateFixedFooter($results, $footer);
     },
-    initHeaderSortableSelection: function() {
-        $('table thead .sortable').on('click', function(e) {
+    initHeaderSortableSelection: function () {
+        $('table thead .sortable').on('click', function (e) {
 
             if (e.target != this) {
                 return;
@@ -79,8 +79,8 @@ ChangeList.prototype = {
             }
         });
     },
-    initRowSelection: function($changelist) {
-        $changelist.find('#result_list tbody th, #result_list tbody td').on('click', function(e) {
+    initRowSelection: function ($changelist) {
+        $changelist.find('#result_list tbody th, #result_list tbody td').on('click', function (e) {
             // Fix selection on clicking elements inside row (e.x. links)
             if (e.target != this) {
                 return;
@@ -89,7 +89,78 @@ ChangeList.prototype = {
             $(this).closest('tr').find('.action-checkbox .action-select').click();
         });
     },
-    run: function() {
+    getColumnName: function (className, prefix) {
+        if (typeof prefix === 'undefined') {
+            prefix = 'column-';
+        }
+        var classes = className.split(/\s+/);
+        var columnName = '';
+        classes.forEach(function (className) {
+            if (className.indexOf(prefix) === 0) {
+                columnName = className.slice(prefix.length);
+            }
+        });
+        return columnName;
+    },
+    changeHiddenColumns: function (hiddenColumn) {
+        var hiddenColumns = JSON.parse(localStorage.getItem('hiddenColumns') || '[]');
+        if (hiddenColumns.indexOf(hiddenColumn) !== -1) {
+            hiddenColumns.splice(hiddenColumns.indexOf(hiddenColumn), 1);
+        }
+        else {
+            hiddenColumns.push(hiddenColumn);
+        }
+        localStorage.setItem('hiddenColumns', JSON.stringify(hiddenColumns));
+        this.updateColumns();
+    },
+    updateColumns: function () {
+        var self = this;
+        var $resultList = this.$changelist.find('#result_list');
+        var hiddenColumns = JSON.parse(localStorage.getItem('hiddenColumns') || '[]');
+        $resultList.find('thead th:not(.action-checkbox-column)').each(function () {
+            var columnName = self.getColumnName($(this).attr('class'));
+            $(this).toggle(hiddenColumns.indexOf(columnName) === -1);
+        });
+        $resultList.find('tbody th:not(.action-checkbox), tbody td:not(.action-checkbox)').each(function () {
+            var columnName = self.getColumnName($(this).attr('class'), 'field-');
+            $(this).toggle(hiddenColumns.indexOf(columnName) === -1);
+        });
+        $('table.helper th:not(.action-checkbox-column)').each(function () {
+            var columnName = self.getColumnName($(this).attr('class'));
+            $(this).toggle(hiddenColumns.indexOf(columnName) === -1);
+        });
+        $(window).trigger('resize');
+    },
+    initColumnSelect: function ($changelist) {
+        var self = this;
+        var $button = $('<li><a class="button icon-settings" href="#"></a></li>');
+        var $objectTools = $('.object-tools').append($button);
+        $button.click(function () {
+            var $container = $('<div title="Управление столбцами"></div>');
+            $changelist.find('#result_list thead th:not(.action-checkbox-column)').each(function () {
+                var columnName = self.getColumnName($(this).attr('class'));
+                var id = 'changelist-column-checkbox-' + columnName;
+                var hiddenColumns = localStorage.getItem('hiddenColumns') || [];
+                var checked = '';
+                if (hiddenColumns.indexOf(columnName) === -1) {
+                    checked = 'checked';
+                }
+                $checkbox = $(
+                    '<div>' +
+                    '   <input type="checkbox" id="' + id + '" ' + checked + ' />' +
+                    '   <label for="' + id + '">' + $(this).text() + '</label>' +
+                    '</div>');
+                $checkbox.find('input').change($.proxy(self.changeHiddenColumns, self, columnName));
+                $container.append($checkbox);
+            });
+            var dialog = $container.dialog({
+                close: function( event, ui ) {
+                    $container.dialog( "destroy" );
+                }
+            });
+        });
+    },
+    run: function () {
         var $changelist = this.$changelist;
 
         try {
@@ -97,6 +168,8 @@ ChangeList.prototype = {
             this.initFixedFooter($changelist);
             this.initHeaderSortableSelection($changelist);
             this.initRowSelection($changelist);
+            this.initColumnSelect($changelist);
+            this.updateColumns();
         } catch (e) {
             console.error(e, e.stack);
         }
@@ -105,8 +178,8 @@ ChangeList.prototype = {
     }
 };
 
-$(document).ready(function() {
-    $('#changelist').each(function() {
+$(document).ready(function () {
+    $('#changelist').each(function () {
         new ChangeList($(this)).run();
     });
 });
