@@ -465,3 +465,21 @@
     left: 20px;
   }
 }
+
+.column-select {
+  cursor: pointer;
+
+  &__input {
+    cursor: pointer;
+  }
+
+  &__label {
+    cursor: pointer;
+  }
+}
+
+.helper {
+  table {
+    table-layout: fixed;
+  }
+}

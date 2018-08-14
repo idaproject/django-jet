@@ -11,8 +11,8 @@ ChangeList.prototype = {
     },
     updateFixedHeaderWidth: function($fixedHeader, $originalHeader) {
         var $originalColumns = $originalHeader.find('th');
+        $fixedHeader.closest('table').css('width', $originalHeader.width());
         var $columns = $fixedHeader.find('th');
-
         $originalColumns.each(function(i) {
             $columns.eq(i).css('width', $(this).width());
         });
@@ -134,7 +134,7 @@ ChangeList.prototype = {
             var columnName = self.getColumnName($(this).attr('class'), 'field-');
             $(this).toggle(hiddenColumns.indexOf(columnName) === -1);
         });
-        $('table.helper th:not(.action-checkbox-column)').each(function () {
+        $('.helper table th:not(.action-checkbox-column)').each(function () {
             var columnName = self.getColumnName($(this).attr('class'));
             $(this).toggle(hiddenColumns.indexOf(columnName) === -1);
         });
@@ -154,16 +154,18 @@ ChangeList.prototype = {
                     checked = 'checked';
                 }
                 $checkbox = $(
-                    '<div>' +
-                    '   <input type="checkbox" id="' + id + '" ' + checked + ' />' +
-                    '   <label for="' + id + '">' + $(this).text() + '</label>' +
+                    '<div class="column-select">' +
+                    '   <input class="column-select__input" type="checkbox" id="' + id + '" ' + checked + ' />' +
+                    '   <label class="column-select__label" for="' + id + '">' + $(this).text() + '</label>' +
                     '</div>');
                 $checkbox.find('input').change($.proxy(self.changeHiddenColumns, self, columnName));
                 $container.append($checkbox);
             });
-            var dialog = $container.dialog({
+            $container.dialog({
                 modal: true,
+                draggable: false,
                 resizable: false,
+                maxHeight: 600,
                 close: function( event, ui ) {
                     $container.dialog( "destroy" );
                 }
