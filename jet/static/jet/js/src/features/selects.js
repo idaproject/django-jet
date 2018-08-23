@@ -197,6 +197,8 @@ Select2.prototype = {
     },
     initSelect2: function() {
         var self = this;
+        var Adapter = function () {};
+
         var AttachBody = $.fn.select2.amd.require('select2/dropdown/attachBody');
         var DropdownAdapter = $.fn.select2.amd.require('select2/dropdown');
         var Utils = $.fn.select2.amd.require('select2/utils');
@@ -205,8 +207,9 @@ Select2.prototype = {
         var closeOnSelect = $.fn.select2.amd.require('select2/dropdown/closeOnSelect');
 
         this.updateAttachBody(AttachBody);
-        this.updateDropdownAdapter(DropdownAdapter);
+        this.updateDropdownAdapter(Adapter);
 
+        DropdownAdapter = Utils.Decorate(DropdownAdapter, Adapter);
         DropdownAdapter = Utils.Decorate(DropdownAdapter, DropdownSearch);
         DropdownAdapter = Utils.Decorate(DropdownAdapter, AttachBody);
         DropdownAdapter = Utils.Decorate(DropdownAdapter, MinimumResultsForSearch);
