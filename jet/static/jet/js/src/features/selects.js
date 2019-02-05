@@ -212,7 +212,7 @@ Select2.prototype = {
         DropdownAdapter = Utils.Decorate(DropdownAdapter, MinimumResultsForSearch);
         DropdownAdapter = Utils.Decorate(DropdownAdapter, closeOnSelect);
 
-        $(document).on('select:init', 'select:not(.django-select2)', function() {
+        $(document).on('select:init', 'select:not(.django-select2,.admin-autocomplete)', function() {
             var $select = $(this);
 
             if ($select.parents('.empty-form').length > 0) {
